@@ -19,7 +19,7 @@ The 17-column contract lives in `src/creditlens_contracts/schema.py`. That file 
 - `TRANSFERAMOUNT`, `CHARGEAMOUNT`, and `PREVIOUSBALANCE` are decimals.
 - Other profile fields are text. Blank age is accepted at this layer.
 
-Range and data-quality rules are not enforced yet.
+Range and data-quality rules are not part of schema parsing. They are reported separately by the profiler in `src/creditlens_contracts/quality.py`. See [docs/data-quality.md](docs/data-quality.md). That pass is read-only: it counts warnings and does not delete or correct rows.
 
 ## Setup
 

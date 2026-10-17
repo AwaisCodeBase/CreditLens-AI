@@ -1,0 +1,10 @@
+SUBSCRIBERID,TRANSACTIONDATE,TRANSFERAMOUNT,CHARGEAMOUNT,SERVICENAME,SHORTNAME,PREVIOUSBALANCE,AGE,GENDER,EDUCATIONLEVELNAME,MONTHLYINCOMERANGE,JOBINFORMATION,SUBCITY,SECTOR,CITYNAME,STATENAME,COUNTRYNAME
+S-001,2020-01-15 10:00:00,25.50,0.00,SyntheticTransfer,XTS,100.00,34,F,,,TeacherSecret,NorthSecret,EduSecret,CitySecret,StateSecret,LandSecret
+S-001,2020-01-16 11:00:00,10.00,0.00,SyntheticTransfer,XTS,80.00,34,M,,,TeacherSecret,NorthSecret,EduSecret,CitySecret,StateSecret,LandSecret
+S-002,2020-02-01 08:00:00,5.00,1.00,SyntheticAirtime,XTS,50.00,,,,,,,,,,
+S-003,2020-02-02,-3.00,0.00,SyntheticTransfer,XTS,10.00,-5,X,,,,,,,,
+S-004,2020-03-01 12:00:00,0.00,0.00,SyntheticDeposit,XTS,1000000000000.01,0,F,,,,,,,,
+S-005,2020-03-02 12:00:00,2000000,0.00,SyntheticTransfer,XTS,100.00,150,M,Bachelor,1000-2000,Clerk,WardSecret,RetailSecret,TownSecret,RegionSecret,CountrySecret
+S-005,2020-03-02 12:00:00,2000000,0.00,SyntheticTransfer,XTS,100.00,150,M,Bachelor,1000-2000,Clerk,WardSecret,RetailSecret,TownSecret,RegionSecret,CountrySecret
+S-006,2020-04-01 09:00:00,15.00,0.00,SyntheticBill,XTS,20.00,17,F,,,,,,,,
+S-007,2020-05-01 00:00:00,NOT_A_NUMBER,0.00,SyntheticTransfer,XTS,10.00,30,F,,,,,,,,

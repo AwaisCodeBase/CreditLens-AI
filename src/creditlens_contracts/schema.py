@@ -2,8 +2,8 @@
 
 This module is the only definition of the 17-column schema. It checks
 column names, column order, and whether values can be parsed into the
-types below. Range checks and other data-quality rules belong in a
-later phase and are intentionally not applied here.
+types below. Range checks and other data-quality warnings live in
+``quality.py`` and are intentionally not applied here.
 
 Attribute names on ``TransactionRecord`` match the file header so the
 contract uses one vocabulary.
@@ -18,6 +18,9 @@ from decimal import Decimal, InvalidOperation
 from enum import Enum
 from pathlib import Path
 from typing import Mapping
+
+# Bump this when column names, column order, or parse rules change.
+SCHEMA_CONTRACT_VERSION: str = "1"
 
 TIMESTAMP_FORMATS: tuple[str, ...] = ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d")
 
@@ -104,7 +107,18 @@ EXPECTED_COLUMN_NAMES: tuple[str, ...] = tuple(column.name for column in COLUMNS
 
 
 class SchemaError(ValueError):
-    """The file does not match the transaction schema."""
+    """The file does not match the transaction schema.
+
+    ``code`` is a stable identifier. The message remains human-readable.
+    Callers that classify failures must use ``code``, not the message text.
+    What the parser accepts is unchanged.
+    """
+
+    code: str
+
+    def __init__(self, message: str, *, code: str) -> None:
+        super().__init__(message)
+        self.code = code
 
 
 @dataclass(frozen=True, slots=True)
@@ -132,7 +146,8 @@ def _record_fields_match_schema() -> None:
     record_fields = tuple(field.name for field in fields(TransactionRecord))
     if record_fields != EXPECTED_COLUMN_NAMES:
         raise SchemaError(
-            "TransactionRecord fields do not match the documented column order."
+            "TransactionRecord fields do not match the documented column order.",
+            code="record:fields_mismatch",
         )
 
 
@@ -146,7 +161,8 @@ def validate_header(header: list[str] | tuple[str, ...]) -> None:
     if names != EXPECTED_COLUMN_NAMES:
         raise SchemaError(
             "CSV header does not match the documented 17-column order. "
-            f"Expected {list(EXPECTED_COLUMN_NAMES)}."
+            f"Expected {list(EXPECTED_COLUMN_NAMES)}.",
+            code="header:mismatch",
         )
 
 
@@ -155,11 +171,14 @@ def parse_row(row: Mapping[str, str | None]) -> TransactionRecord:
 
     unexpected = [key for key in row if key not in EXPECTED_COLUMN_NAMES]
     if unexpected:
-        raise SchemaError(f"Unexpected columns: {unexpected}")
+        raise SchemaError(
+            f"Unexpected columns: {unexpected}",
+            code="row:unexpected_columns",
+        )
 
     missing = [name for name in EXPECTED_COLUMN_NAMES if name not in row]
     if missing:
-        raise SchemaError(f"Missing columns: {missing}")
+        raise SchemaError(f"Missing columns: {missing}", code="row:missing_columns")
 
     parsed: dict[str, object] = {}
     for column in COLUMNS:
@@ -174,7 +193,7 @@ def read_transaction_csv(path: Path) -> list[TransactionRecord]:
     with path.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
         if reader.fieldnames is None:
-            raise SchemaError("CSV has no header row.")
+            raise SchemaError("CSV has no header row.", code="header:missing")
         validate_header(list(reader.fieldnames))
         return [parse_row(row) for row in reader]
 
@@ -188,7 +207,7 @@ def _cell(value: str | None) -> str:
 def _parse_cell(column: ColumnSpec, raw: str) -> str | datetime | Decimal | None:
     if column.role is ColumnRole.IDENTIFIER:
         if raw == "":
-            raise SchemaError(f"{column.name} is empty.")
+            raise SchemaError(f"{column.name} is empty.", code=f"{column.name}:empty")
         return raw
     if column.role is ColumnRole.TIMESTAMP:
         return _parse_timestamp(raw, column.name)
@@ -200,7 +219,10 @@ def _parse_cell(column: ColumnSpec, raw: str) -> str | datetime | Decimal | None
         return _parse_decimal(raw, column.name)
     if column.role is ColumnRole.TEXT:
         return raw
-    raise SchemaError(f"No parser for {column.name}.")
+    raise SchemaError(
+        f"No parser for {column.name}.",
+        code=f"{column.name}:unclassified",
+    )
 
 
 def _parse_timestamp(raw: str, column_name: str) -> datetime:
@@ -210,7 +232,8 @@ def _parse_timestamp(raw: str, column_name: str) -> datetime:
         except ValueError:
             continue
     raise SchemaError(
-        f"{column_name} is not a timestamp in YYYY-MM-DD or YYYY-MM-DD HH:MM:SS."
+        f"{column_name} is not a timestamp in YYYY-MM-DD or YYYY-MM-DD HH:MM:SS.",
+        code=f"{column_name}:unparseable",
     )
 
 
@@ -218,7 +241,13 @@ def _parse_decimal(raw: str, column_name: str) -> Decimal:
     try:
         number = Decimal(raw)
     except InvalidOperation as exc:
-        raise SchemaError(f"{column_name} is not a decimal number.") from exc
+        raise SchemaError(
+            f"{column_name} is not a decimal number.",
+            code=f"{column_name}:unparseable",
+        ) from exc
     if not number.is_finite():
-        raise SchemaError(f"{column_name} is not a finite decimal number.")
+        raise SchemaError(
+            f"{column_name} is not a finite decimal number.",
+            code=f"{column_name}:unparseable",
+        )
     return number
