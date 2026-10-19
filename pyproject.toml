@@ -5,10 +5,10 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "creditlens"
 version = "0.1.0"
-description = "Foundation for the CreditLens credit-risk assessment project. Currently defines the transaction-file schema only."
+description = "Transaction schema, read-only quality profiler, and labeled credit-card dataset contract."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = ["xlrd>=2.0.1,<3"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.3,<9"]

@@ -1,6 +1,6 @@
 # CreditLens
 
-CreditLens is a credit-risk assessment project in its foundation stage. This repository currently defines the column contract for a transaction extract and checks that contract with a small synthetic fixture.
+CreditLens is a credit-risk assessment project in its foundation stage. This repository currently defines two column contracts, one for a transaction extract and one for the UCI default-of-credit-card-clients file. Each contract is checked with a small synthetic fixture.
 
 No web application, database, or trained model is included yet.
 
@@ -8,7 +8,9 @@ No web application, database, or trained model is included yet.
 
 `AI_CREDIT_SCORING_TABLE.csv` may be kept in this folder for local development. It can contain financial and personal information, so Git is configured to ignore it. Do not commit it, copy it into docs, or sample it into tests.
 
-The tests use `tests/fixtures/synthetic_transactions.csv`, which is invented data.
+`default of credit card clients.xls` also contains financial and client data. Keep that workbook local, and leave it excluded from Git.
+
+The tests use `tests/fixtures/synthetic_transactions.csv` and `tests/fixtures/synthetic_default_clients.csv`, which are invented data.
 
 ## Schema
 
@@ -20,6 +22,8 @@ The 17-column contract lives in `src/creditlens_contracts/schema.py`. That file 
 - Other profile fields are text. Blank age is accepted at this layer.
 
 Range and data-quality rules are not part of schema parsing. They are reported separately by the profiler in `src/creditlens_contracts/quality.py`. See [docs/data-quality.md](docs/data-quality.md). That pass is read-only: it counts warnings and does not delete or correct rows.
+
+The separate 25-column contract for the UCI Default of Credit Card Clients file lives in `src/creditlens_contracts/default_clients.py`. See [docs/default-clients.md](docs/default-clients.md). It does not read the transaction extract.
 
 ## Setup
 
@@ -39,4 +43,4 @@ pytest
 
 ## Modeling limit
 
-A supervised credit-risk model needs a labeled outcome, such as repayment or default. The original CSV does not provide one. Selecting a labeled training dataset is a later decision, and no model has been trained in this repository.
+A supervised credit-risk model needs a labeled outcome. The transaction CSV does not provide one. The UCI workbook has a binary default label, and its parser is documented in [docs/default-clients.md](docs/default-clients.md). No model has been trained in this repository. A model fit on that historical file would not automatically describe the transaction extract or a real lending decision.
