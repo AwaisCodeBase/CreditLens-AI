@@ -11,6 +11,10 @@ from creditlens_contracts.default_clients import (
     read_default_clients_csv,
     read_default_clients_xls,
 )
+from creditlens_contracts.default_clients_quality import (
+    profile_default_clients,
+    render_default_client_report,
+)
 from creditlens_contracts.quality import profile_transactions, render_report
 from creditlens_contracts.schema import (
     COLUMNS,
@@ -29,9 +33,11 @@ __all__ = [
     "LabelSchemaError",
     "SchemaError",
     "TransactionRecord",
+    "profile_default_clients",
     "profile_transactions",
     "read_default_clients_csv",
     "read_default_clients_xls",
     "read_transaction_csv",
+    "render_default_client_report",
     "render_report",
 ]

@@ -10,7 +10,7 @@ No web application, database, or trained model is included yet.
 
 `default of credit card clients.xls` also contains financial and client data. Keep that workbook local, and leave it excluded from Git.
 
-The tests use `tests/fixtures/synthetic_transactions.csv` and `tests/fixtures/synthetic_default_clients.csv`, which are invented data.
+The tests use `tests/fixtures/synthetic_transactions.csv`, `tests/fixtures/synthetic_default_clients.csv`, and `tests/fixtures/quality_default_clients.csv`, which are invented data.
 
 ## Schema
 
@@ -23,7 +23,7 @@ The 17-column contract lives in `src/creditlens_contracts/schema.py`. That file 
 
 Range and data-quality rules are not part of schema parsing. They are reported separately by the profiler in `src/creditlens_contracts/quality.py`. See [docs/data-quality.md](docs/data-quality.md). That pass is read-only: it counts warnings and does not delete or correct rows.
 
-The separate 25-column contract for the UCI Default of Credit Card Clients file lives in `src/creditlens_contracts/default_clients.py`. See [docs/default-clients.md](docs/default-clients.md). It does not read the transaction extract.
+The separate 25-column contract for the UCI Default of Credit Card Clients file lives in `src/creditlens_contracts/default_clients.py`. See [docs/default-clients.md](docs/default-clients.md). It does not read the transaction extract. Aggregate checks for that file live in `src/creditlens_contracts/default_clients_quality.py`. See [docs/default-clients-quality.md](docs/default-clients-quality.md). `python -m creditlens_contracts` still profiles only the transaction extract.
 
 ## Setup
 
